@@ -21,6 +21,24 @@
     - [Javascript Runtime](#javascript-runtime)
     - [Node.js](#nodejs)
     - [Advanced JavaScript Cheatsheet](#advanced-javascript-cheatsheet)
+  - [**Section 3: Javascript Foundation II**](#section-3-javascript-foundation-ii)
+    - [Execution Context](#execution-context)
+    - [Lexical Environment](#lexical-environment)
+    - [Hoisting](#hoisting)
+    - [Function Invocation](#function-invocation)
+    - [arguments Keyword](#arguments-keyword)
+    - [Variable Environment](#variable-environment)
+    - [Scope Chain](#scope-chain)
+    - [[[scope]]](#scope)
+    - [JS is Weird](#js-is-weird)
+    - [Function Scope vs Block Scope](#function-scope-vs-block-scope)
+    - [Global Variables](#global-variables)
+    - [IIFE](#iife)
+    - [this Keyword](#this-keyword)
+    - [Dynamic Scope vs Lexical Scope](#dynamic-scope-vs-lexical-scope)
+    - [call(), apply(), bind()](#call-apply-bind)
+    - [bind() and currying](#bind-and-currying)
+    - [Context vs Scope](#context-vs-scope)
 
 ## **Section 2: JavaScript Foundation**
 
@@ -288,6 +306,7 @@ References
 - [How Node.js Works](https://www.youtube.com/watch?v=jOupHNvDIq8)
 - [How Node JS Works?](https://www.youtube.com/watch?v=YSyFSnisip0)
 - [Global Objects](https://nodejs.org/api/globals.html#globals_global_objects)
+- [10 Things I Regret About Node.js](https://www.youtube.com/watch?v=M3BM9TB-8yA)
 
 **[⬆ back to top](#table-of-contents)**
 
@@ -295,5 +314,610 @@ References
 
 - [JavaScript Cheat Sheet: The Advanced Concepts](https://zerotomastery.io/courses/advanced-javascript/cheatsheet/)
 - [JavaScript Cheat Sheet: The Advanced Concepts PDF](ztm-javascript-cheatsheet.pdf)
+
+**[⬆ back to top](#table-of-contents)**
+
+## **Section 3: Javascript Foundation II**
+
+### Execution Context
+
+Global Execution Context
+
+Creation Phase
+
+- Global object created: window
+- Initializes this keyword to global
+- window === this
+
+Executing Phase
+
+- Variable Environment created - memory space for var variables and functions created
+- Initializes all variables to undefined (also known as hoistng) and places them with any functions into memory
+
+```javascript
+this;
+window;
+this === window;
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Lexical Environment
+
+- lexical environment: the scope or environment the engine is currently reading code in
+  - a new lexical environment is created when curly brackets {} are used
+- lexical scope: available data + variables where function was defined
+- dynamic scope: where function is called
+
+```javascript
+function one() {
+  var isValid = true;  // local env
+  two();  // new execution context
+}
+
+function two() {
+  var isValid; // undefined
+}
+
+var isValid = false; // global
+one();
+
+// two() isValid = undefined
+// one() isValid = true
+// global() isValid = false
+// -------------------------
+// call stack
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Hoisting
+
+- Hoisting is the process of putting all variable and function declarations into memory during the compile phase   
+  - functions are fully hoisted
+  - var variables are hoisted and initialized to undefined
+  - let and const variables are hoisted but not initialized a value
+
+```javascript
+var favouriteFood = "grapes";
+
+var foodThoughts = function () {
+  console.log("Original favourite food: " + favouriteFood);
+  var favouriteFood = "sushi";
+  console.log("New favourite food: " + favouriteFood);
+};
+
+foodThoughts()
+```
+
+```javascript
+// Global Execution Context
+// Creation Phase
+var favouriteFood = undefined
+var foodThoughts = undefined
+
+// Executing Phase
+favouriteFood = "grapes"
+foodThoughts = function () {
+  console.log("Original favourite food: " + favouriteFood);
+  var favouriteFood = "sushi";
+  console.log("New favourite food: " + favouriteFood);
+}
+```
+
+```javascript
+foodThoughts()
+// Functional Execution Context
+// Creation Phase
+var favouriteFood = undefined
+
+// Executing Phase
+"Original favourite food: undefined"
+favouriteFood = "sushi"
+"New favourite food: sushi"
+```
+
+Avoid hoisting when possible. It can cause memory leaks and hard to catch bugs in your code. Use let and const as your go to variables.
+
+**[⬆ back to top](#table-of-contents)**
+
+### Function Invocation
+
+```javascript
+// Function Expression
+var canada = () => console.log('cold')
+
+// Function Declaration
+function india() {
+  console.log('warm')
+}
+
+// Function Invocation / Call / Execution
+canada()
+india()
+```
+
+Functional Execution Context
+
+- Only when a function is invoked, does a function execution context get created
+
+Creation Phase
+
+- Argument object created with any arguments
+- Initializes this keyword to point called or to the global object if not specified
+
+Executing Phase
+
+- Variable Environment created - memory space for variable and functions created
+- Initializes all variables to undefined and places them into memory with any new functions
+
+**[⬆ back to top](#table-of-contents)**
+
+### arguments Keyword
+
+```javascript
+function showArgs(arg1, arg2) {
+  console.log("arguments: ", arguments);
+  console.log(Array.from(arguments));
+}
+showArgs("hello", "world");
+
+function showArgs2(...args) {
+  console.log("arguments: ", args);
+  console.log(args[0], args[1]);
+}
+showArgs2("hello", "world");
+
+function noArgs() {
+  console.log("arguments: ", arguments);
+}
+noArgs();
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Variable Environment
+
+```javascript
+function two() {
+  var isValid;
+}
+
+function one() {
+  var isValid = true;
+  two();
+}
+
+var isValid = false;
+one()
+
+// global execution context creation
+// function two() { ... }
+// function one() { ... }
+// var isValid = undefined;
+
+// global execution context execution
+// var isValid = false;
+
+// function one execution context creation
+// var isValid = undefined;
+
+// function one execution context execution
+// var isValid = true;
+
+// function two execution context creation
+// var isValid = undefined;
+
+// function two execution context execution
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Scope Chain
+
+- Lexical Environment === [[scope]]
+- outer scope === [[scope]]
+
+```javascript
+// Scope defines the accessibility of variables and functions in the code
+// Global Scope is the outer most scope
+function sayMyName() {
+  var a = 'a';
+  return function findName() {
+    var b = 'b';
+    console.log(a);
+    return function printName() {
+      var c = 'c';
+      console.log(a);
+      console.log(b);
+      return 'Andrei Neagoie'
+    }
+  }
+}
+
+sayMyName()()()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### [[scope]]
+
+```javascript
+function a() { }
+
+// window: {
+//   a: f a() {
+//     [[Scopes]] : [
+//       Script { },
+//       Global { }
+//     ]
+//   }
+// }
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### JS is Weird
+
+```javascript
+// Weird Javascript #1 - it asks global scope for height
+// Global scope says: ummm... no but here I just created it for you.
+// We call this leakage of global variables.
+function weird() {
+  height = 50
+}
+
+weird()
+```
+
+```javascript
+// leakage of global variables is not allowed
+'use strict'
+function weird() {
+  height = 50
+}
+
+weird()
+```
+
+```javascript
+var heyhey = function doodle() {
+  return "heyhey"
+}
+
+heyhey();
+doodle(); // Error! because it is enclosed in its own scope.
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Function Scope vs Block Scope
+
+```javascript
+// Function Scope
+function loop() {
+  for( var i = 0; i < 5; i++) {
+    console.log(i);
+  }
+  console.log(i)
+}
+
+// Block Scope
+function loop2() {
+  for( let i = 0; i < 5; i++) {
+    console.log(i);
+  }
+  console.log(i)
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Global Variables
+
+```javascript
+// variable collisions
+// all global variables are on the global execution context
+// they overwrite each other
+var z = 1;
+var z = 2;
+z
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### IIFE
+
+```javascript
+// place all library code inside local scope 
+// to avoid any namespace collisions
+// function expression
+// anonymous function
+(function() {
+
+})();
+
+// cannot call function declaration immediately
+function a(){}()
+
+var script1 = (function() {
+  function a() {
+    return 5;
+  }
+  return {
+    a: a
+  }
+})();
+script1.a()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### this Keyword
+
+this is the object that the function is a property of
+
+```javascript
+function a() {
+  console.log(this) // this refer to window object
+}
+
+const b = () => console.log(this) // this refer to window object
+
+a()
+b()
+```
+
+```javascript
+// gives methods access to their object
+const obj = {
+  name: 'Billy',
+  sing: function() {
+    return 'llala ' + this.name + '!'
+  },
+  singAgain: function() {
+    return this.sing()
+  }
+}
+
+obj.singAgain()
+```
+
+```javascript
+// execute some code for multiple objects
+function importantPerson() {
+  console.log(this.name)
+}
+
+importantPerson() // this refer to window object
+
+const name = 'Sunny';
+const obj1 = { name: 'Cassy', importantPerson }
+const obj2 = { name: 'Jacob', importantPerson }
+
+obj1.importantPerson()  // Cassy
+obj2.importantPerson()  // Jacob
+```
+
+```javascript
+var b = {
+  name: 'jay',
+  say() {console.log(this)} 
+}
+
+var c = {
+  name: 'jay',
+  say() {return function() {console.log(this)}}
+}
+
+var d = {
+  name: 'jay',
+  say() {return () => console.log(this)}
+}
+
+b.say()   // this refer to b object
+c.say()() // this refer to window object
+d.say()() // this refer to b object
+```
+
+```javascript
+const character = {
+  name: 'Simon',
+  getCharacter() {
+    return this.name;
+  }
+};
+
+const giveMeTheCharacterNOW = character.getCharacter.bind(character);
+giveMeTheCharacterNOW()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Dynamic Scope vs Lexical Scope
+
+- lexical scope: available data + variables where function was defined
+- dynamic scope: where function is called
+  - this keyword is dynamic scope
+
+| Lexical scope                 | Dynamic Scope                    |
+| ----------------------------- | -------------------------------- |
+| write-time                    | run-time                         |
+| where a function was declared | where a function was called from |
+
+```javascript
+const a = function() {
+  console.log('a', this)  // this refer to window object
+  const b = function() {
+    console.log('b', this)  // this refer to window object
+    const c = {
+      hi: function() {
+        console.log('c', this)  /// this refer to c object
+      }
+    }
+    c.hi()  
+  }
+  b()
+}
+
+a()
+```
+
+```javascript
+const obj = {
+  name: 'Billy',
+  sing: function() {
+    console.log('a', this) // refer to obj object
+    const anotherFunc = function() {
+      console.log('b', this) // refer to window object
+    }
+  }
+}
+obj.sing()
+```
+
+```javascript
+const obj = {
+  name: 'Billy',
+  sing() {
+    console.log('a', this) // refer to obj object
+    // arrow function is lexical bound
+    const anotherFunc = () => console.log('b', this)  // refer to obj object
+    anotherFunc()
+  }
+}
+obj.sing()
+```
+
+```javascript
+const obj = {
+  name: 'Billy',
+  sing() {
+    console.log('a', this) // refer to obj object
+    const anotherFunc = function() {
+      console.log('b', this) // refer to obj object
+    }
+    return anotherFunc.bind(this)
+  }
+}
+obj.sing()()
+```
+
+```javascript
+const obj = {
+  name: 'Billy',
+  sing() {
+    console.log('a', this) // refer to obj object
+    const self = this;
+    const anotherFunc = function() {
+      console.log('b', self)  // refer to obj object
+    }
+    return anotherFunc
+  }
+}
+obj.sing()()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### call(), apply(), bind()
+
+```javascript
+function a() {
+  console.log('hi')
+}
+a()
+a.call()
+a.apply()
+```
+
+```javascript
+const wizard = {
+  name: 'Merlin',
+  health: 100,
+  heal(num1, num2) {
+    this.health += num1 + num2;
+  }
+}
+
+const archer = {
+  name: 'Robin Hood',
+  health: 50
+}
+
+wizard.heal(10, 60)
+// borrow heal method from wizard object
+wizard.heal.call(archer, 50, 60)
+wizard.heal.apply(archer, [20, 30])
+
+// borrow heal method from wizard object
+// call healArcher later on with archer object
+const healArcher = wizard.heal.bind(archer, 50, 60);
+healArcher()
+```
+
+```javascript
+const array = [1,2,3];
+
+function getMaxNumber(arr) {
+  return Math.max.apply(null, arr);  
+}
+
+const getMaxNumber = arr => Math.max.apply(null, arr)
+
+getMaxNumber(array)
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### bind() and currying
+
+- translates a function from callable as f(a, b, c) into callable as f(a)(b)(c)
+- [Currying](https://javascript.info/currying-partials)
+- [Currying: A Functional Alternative To fn.bind](https://derickbailey.com/2016/06/24/currying-a-functional-alternative-to-fn-bind/)
+
+```javascript
+function sum(a, b) {
+  return a + b;
+}
+
+// curry(f) does the currying transform
+function curry(f) { 
+  return function(a) {
+    return function(b) {
+      return f(a, b);
+    };
+  };
+}
+
+let curriedSum = curry(sum);
+
+curriedSum(1)(2);
+```
+
+```javascript
+function multiply(a, b, c) {
+  return a * b * c;
+}
+
+const multipleByTwo = multiply.bind(this, 2, 4);
+console.log(multipleByTwo(4));
+
+const multipleByThree = multiply.bind(this, 3, 5);
+console.log(multipleByThree(4));
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Context vs Scope
+
+- [Understanding Scope and Context in JavaScript](http://ryanmorr.com/understanding-scope-and-context-in-javascript/)
+- Scope is function based
+  - what is the variable access of a function when it is invoked?
+  - What is in the variable environment?
+  - scope refers to the visibility of variables
+- Context is object based
+  - what is the value of this keyword?
+  - context is most often determined by how a function is invoked with the value of this keyword 
 
 **[⬆ back to top](#table-of-contents)**
