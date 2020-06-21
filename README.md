@@ -1,8 +1,8 @@
-# JavaScript: The Advanced Concepts
+# JavaScript: The Advanced Concepts Study Notes (Live)
 
 ## Table of Contents
 
-- [JavaScript: The Advanced Concepts](#javascript-the-advanced-concepts)
+- [JavaScript: The Advanced Concepts Study Notes (Live)](#javascript-the-advanced-concepts-study-notes-live)
   - [Table of Contents](#table-of-contents)
   - [**Section 2: JavaScript Foundation**](#section-2-javascript-foundation)
     - [Javascript Engine](#javascript-engine)
@@ -39,6 +39,13 @@
     - [call(), apply(), bind()](#call-apply-bind)
     - [bind() and currying](#bind-and-currying)
     - [Context vs Scope](#context-vs-scope)
+  - [**Section 4: Types in JavaScript**](#section-4-types-in-javascript)
+    - [Javascript Types](#javascript-types)
+    - [Array.isArray()](#arrayisarray)
+    - [Pass By Value vs Pass By Reference](#pass-by-value-vs-pass-by-reference)
+    - [Exercise: Compare Objects](#exercise-compare-objects)
+    - [Exercise: Pass By Reference](#exercise-pass-by-reference)
+    - [Type Coercion](#type-coercion)
 
 ## **Section 2: JavaScript Foundation**
 
@@ -919,5 +926,144 @@ console.log(multipleByThree(4));
 - Context is object based
   - what is the value of this keyword?
   - context is most often determined by how a function is invoked with the value of this keyword 
+
+**[⬆ back to top](#table-of-contents)**
+
+## **Section 4: Types in JavaScript**
+
+### Javascript Types
+
+[Standard built-in objects](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects)
+
+```javascript
+// Primitive
+typeof 5
+typeof true
+typeof 'To be or not to be'
+typeof undefined  // absent of definition 
+typeof null // absent of value
+typeof Symbol('just me')
+
+// Non-Primitive
+// has a reference or pointer
+typeof {}
+typeof []
+typeof function() {}
+
+const obj1 = {
+  a: 'Tom'
+}
+
+// function and array are objects
+function a() {
+  return 5;
+}
+a.hi = "hi"
+
+// Object wrapper
+true.toString()
+Boolean(true).toString()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Array.isArray()
+
+```javascript
+const array = ['1', '2', '3'];
+const obj = {
+  0: '1',
+  1: '2',
+  2: '3'
+}
+
+Array.isArray(array)
+Array.isArray(obj)
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Pass By Value vs Pass By Reference
+
+```javascript
+// pass by value
+var a = 5;
+var b = a;
+b++;
+
+// pass by reference
+let obj1 = { name: 'Yao', password: '123' };
+let obj2 = obj1;
+obj2.password = 'easy'
+
+var c = [1, 2, 3];
+var d = c;
+d.push(4)
+
+var c = [1, 2, 3];
+var d = [].concat(c); // clone array
+d.push(4)
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Exercise: Compare Objects
+
+[Compare objects with JavaScript](https://bithacker.dev/compare-objects-javascript)
+
+```javascript
+var user1 = {name : "nerd", org: "dev", c: { d: "d" } };
+var user2 = {name : "nerd", org: "dev", c: { d: "d" } };
+JSON.stringify(user1) === JSON.stringify(user2) 
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Exercise: Pass By Reference
+
+```javascript
+const number = 100
+const string = "Jay"
+let obj1 = {
+  value: "a"
+}
+let obj2 = {
+  value: "b"
+}
+let obj3 = obj2;
+ 
+function change(number, string, obj1, obj2) {
+    number = number * 10;
+    string = "Pete";
+    obj1 = obj2;
+    obj2.value = "c";
+}
+ 
+change(number, string, obj1, obj2);
+ 
+//Guess the outputs here before you run the code: 
+// number  100
+// string  'Jay'
+// obj1    { value: 'a' }
+// obj2    { value: 'c' }
+// obj3    { value: 'c' }
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Type Coercion
+
+- [JS Comparison Table](https://dorey.github.io/JavaScript-Equality-Table/)
+- [Equality comparisons and sameness](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Equality_comparisons_and_sameness)
+- [The Abstract Equality Comparison Algorithm](https://www.ecma-international.org/ecma-262/5.1/#sec-11.9.3)
+
+```javascript
+if(1) { // true
+  console.log(5);
+}
+if(0) { // false
+  console.log(5);
+}
+```
 
 **[⬆ back to top](#table-of-contents)**
