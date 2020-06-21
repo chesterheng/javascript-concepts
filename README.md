@@ -97,6 +97,12 @@
     - [Job Queue](#job-queue)
     - [Parallel, Sequence and Race](#parallel-sequence-and-race)
     - [Threads, Concurrency and Parallelism](#threads-concurrency-and-parallelism)
+  - [**Section 10: Modules In JavaScript**](#section-10-modules-in-javascript)
+    - [What Is A Module?](#what-is-a-module)
+    - [Module Pattern](#module-pattern)
+    - [Module Pattern Pros and Cons](#module-pattern-pros-and-cons)
+    - [CommonJS, AMD, UMD](#commonjs-amd-umd)
+    - [ES6 Modules](#es6-modules)
 
 ## **Section 2: JavaScript Foundation**
 
@@ -2337,5 +2343,62 @@ race().then(console.log)
 - [A gentle introduction to multithreading](https://www.internalpointers.com/post/gentle-introduction-multithreading)
 - [Using Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers)
 - [Scaling Node.js Applications](https://www.freecodecamp.org/news/scaling-node-js-applications-8492bd8afadc/)
+
+**[⬆ back to top](#table-of-contents)**
+
+## **Section 10: Modules In JavaScript**
+
+### What Is A Module?
+
+[Modules, introduction](https://javascript.info/modules-intro)
+
+**[⬆ back to top](#table-of-contents)**
+
+### Module Pattern
+
+[JavaScript Module Pattern Basics](https://coryrylan.com/blog/javascript-module-pattern-basics)
+
+- global scope
+- module scope
+- function scope
+- block scope - let and const
+
+```javascript
+// IIFE
+// Module Pattern
+var fightModule = (function() {
+  var harry = 'potter'
+  var voldemort = 'He who must not be named'
+
+  function fight(char1, char2) {
+    var attack1 = Math.floor(Math.random() * char1.length);
+    var attack2 = Math.floor(Math.random() * char2.length);
+    return attack1 > attack2 ? `${char1} wins` : `${char2} wins`
+  }
+  return { fight }
+})()
+
+fightModule.fight('harry', 'voldemort')
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Module Pattern Pros and Cons
+
+[JavaScript Module Pattern](https://vegibit.com/javascript-module-pattern/)
+
+**[⬆ back to top](#table-of-contents)**
+
+### CommonJS, AMD, UMD
+
+- [What are CJS, AMD, UMD, and ESM in Javascript?](https://dev.to/iggredible/what-the-heck-are-cjs-amd-umd-and-esm-ikm)
+- [Browserify](http://browserify.org/)
+
+**[⬆ back to top](#table-of-contents)**
+
+### ES6 Modules
+
+- [export](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
+- [import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import)
 
 **[⬆ back to top](#table-of-contents)**
