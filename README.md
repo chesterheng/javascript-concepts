@@ -103,6 +103,12 @@
     - [Module Pattern Pros and Cons](#module-pattern-pros-and-cons)
     - [CommonJS, AMD, UMD](#commonjs-amd-umd)
     - [ES6 Modules](#es6-modules)
+  - [**Section 11: Error Handling**](#section-11-error-handling)
+    - [Errors In JavaScript](#errors-in-javascript)
+    - [Try Catch](#try-catch)
+    - [Async Error Handling](#async-error-handling)
+    - [Exercise: Error Handling](#exercise-error-handling)
+    - [Extending Errors](#extending-errors)
 
 ## **Section 2: JavaScript Foundation**
 
@@ -2400,5 +2406,148 @@ fightModule.fight('harry', 'voldemort')
 
 - [export](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export
 - [import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import)
+
+**[⬆ back to top](#table-of-contents)**
+
+## **Section 11: Error Handling**
+
+### Errors In JavaScript
+
+Call Stack
+
+- ERROR!
+- Is there a catch?
+- Is there a catch?
+
+
+- Runtime catch: onerror() - browser
+- process.on('uncaughtException') - Node JS 
+
+```javascript
+throw 'Error2';   // String type
+throw 42;         // Number type
+throw true;       // Boolean type
+throw Error
+throw new Error // will create an instance of an Error in JavaScript and stop the execution of your script. 
+
+function a() {
+  const b =  new Error('what?')
+  return b
+}
+
+a().stack
+
+let error = new Error(message);
+let error2 = new SyntaxError(message);
+let error3 = new ReferenceError(message);
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Try Catch
+
+```javascript
+function fail() {
+  try {
+    console.log('this works');
+    throw new Error('oopsie');
+  } catch(e) {
+    console.log('error', e);
+  } finally {
+    console.log('still good');
+    return 'returning from fail';
+  }
+  console.log('never going to get here'); // not reachable
+}
+fail();
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Async Error Handling
+
+```javascript
+Promise.resolve('asyncfail')
+  .then(response => {
+    console.log(response)
+    throw new Error('#1 fail')
+  })
+  .then(response => {
+    console.log(response)
+  })
+  .catch(err => {
+    console.error('error', err.message)
+  })
+  .then(response => {
+    console.log('hi am I still needed?', response)
+    return 'done'
+  })
+  .catch(err => {
+    console.error(err)
+    return 'failed'
+  })
+```
+
+```javascript
+(async function() {
+  try {
+    await Promise.reject('oopsie')
+  } catch (err) {
+    console.error(err)
+  }
+
+  console.log('This is still good!')
+})()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Exercise: Error Handling
+
+```javascript
+(function () {
+  try {
+    throw new Error();
+  } catch (err) {
+    var err = 5;
+    var boo = 10;
+    console.log(err);
+  }
+  //Guess what the output is here:
+  console.log(err);
+  console.log(boo);
+})();
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Extending Errors
+
+```javascript
+class authenticationError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = 'ValidationError'
+    this.message = message
+  }
+}
+class PermissionError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = 'PermissionError'
+    this.message = message
+    this.favouriteSnack = 'grapes'
+  }
+}
+class DatabaseError extends Error {
+  constructor(message) {
+    super(message)
+    this.name = 'DatabaseError'
+    this.message = message
+  }
+}
+
+throw new PermissionError('A permission error')
+```
 
 **[⬆ back to top](#table-of-contents)**
