@@ -76,6 +76,20 @@
     - [Public vs Private](#public-vs-private)
     - [4 Pillars of OOP](#4-pillars-of-oop)
     - [Exercise: OOP and Polymorphism](#exercise-oop-and-polymorphism)
+  - [**Section 7: Functional Programming**](#section-7-functional-programming)
+    - [Functional Programming Introduction](#functional-programming-introduction)
+    - [Exercise: Amazon shopping](#exercise-amazon-shopping)
+    - [Pure Functions](#pure-functions)
+    - [Can Everything Be Pure?](#can-everything-be-pure)
+    - [Idempotent](#idempotent)
+    - [Imperative vs Declarative](#imperative-vs-declarative)
+    - [Immutability](#immutability)
+    - [Higher Order Functions and Closures](#higher-order-functions-and-closures)
+    - [Currying](#currying)
+    - [Partial Application](#partial-application)
+    - [Compose and Pipe](#compose-and-pipe)
+    - [Arity](#arity)
+    - [Solution: Amazon](#solution-amazon)
 
 ## **Section 2: JavaScript Foundation**
 
@@ -1910,3 +1924,325 @@ victoria.attack()
 ```
 
 **[⬆ back to top](#table-of-contents)**
+
+## **Section 7: Functional Programming**
+
+### Functional Programming Introduction
+
+- [Functional Programming - Lambda Calculus](https://www.tutorialspoint.com/functional_programming/functional_programming_lambda_calculus.htm)
+- Separate between data over a program and the behavior of a program
+- All objects created in functional programming are immutable
+- Pure functions
+
+**[⬆ back to top](#table-of-contents)**
+
+### Exercise: Amazon shopping
+
+```javascript
+const user = {
+  name: 'Kim',
+  active: true,
+  cart: [],
+  purchases: []
+}
+
+//Implement a cart feature:
+// 1. Add items to cart.
+// 2. Add 3% tax to item in cart
+// 3. Buy item: cart --> purchases
+// 4. Empty cart
+
+//Bonus:
+// accept refunds.
+// Track user history.
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Pure Functions
+
+- no side effect
+- no mutation
+- same input -> same output
+- map and concat methods can fix this issue of mutation
+- [Referential Transparency](https://www.sitepoint.com/what-is-referential-transparency)
+
+```javascript
+// Side effects
+// mutateArray modifies array outside of itself
+// mutateArray2 modifies array outside of itself
+const array = [1,2,3];
+
+function mutateArray(arr) {
+  arr.pop()
+}
+
+function mutateArray2(arr) {
+  arr.forEach(item => arr.push(1
+  ))
+}
+
+array
+mutateArray(array)
+mutateArray2(array)
+array
+```
+
+```javascript
+// No side effects
+const array = [1,2,3];
+function mutateArray(arr) {
+  const newArray = [].concat(arr);
+  newArray.pop()
+  return newArray;
+}
+function mutateArray2(arr) {
+  const newArray = [].concat(arr);
+  newArray.forEach(item => newArray.push(1
+  ))
+  return newArray;
+}
+function mutateArray3(arr) {
+  return arr.map(item => item * 2)
+}
+
+array
+mutateArray(array)
+mutateArray2(array)
+mutateArray3(array)
+array
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Can Everything Be Pure?
+
+Functional programming at the end of the day is just about making your code predictable
+
+The Perfect Function 
+
+- Do 1 task only
+- Return Statement
+- Pure
+- No shared state
+- Immutable state
+- Composable
+- Predictable
+
+**[⬆ back to top](#table-of-contents)**
+
+### Idempotent
+
+- Idempotence is a property of some operations such that no matter how many times you execute them, you achieve the same result
+
+```javascript
+function notGood(num) {
+  return Math.random(num)
+}
+
+// Idempotence
+function good() {
+  return 5
+}
+
+Math.abs(Math.abs(10))
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Imperative vs Declarative
+
+- [Imperative versus declarative code… what’s the difference?](https://medium.com/front-end-weekly/imperative-versus-declarative-code-whats-the-difference-adc7dd6c8380)
+- [Imperative vs. Declarative Programming (in 60 seconds)](https://www.youtube.com/watch?v=JqvMTwnbhnA)
+- Imperative: How?
+- Declarative: What?
+
+```javascript
+// Imperative
+for (let i = 0; i < 3, i++) {
+  console.log(i)
+}
+```
+
+```javascript
+// Declarative
+[1, 2, 3].forEach(item => console.log(item))
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Immutability
+
+[Immutable.js, persistent data structures and structural sharing](https://medium.com/@dtinth/immutable-js-persistent-data-structures-and-structural-sharing-6d163fbd73d2)
+
+```javascript
+const obj = { name: 'Andrei' }
+function clone(obj) {
+  return { ...obj }; // this is pure
+}
+
+function updateName(obj) {
+  const obj2 = clone(obj);
+  obj2.name = 'Nana'
+  return obj2
+}
+
+const updatedObj = updateName(obj)
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Higher Order Functions and Closures
+
+```javascript
+//HOF
+const hof = (fn) => fn(5);
+hof(function a(x) { return x} )
+
+//Closure and HOF
+const closure = function() {
+  let count = 55;
+  return function getCounter() {
+    return count;
+  }
+}
+
+const getCounter = closure()
+getCounter()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Currying
+
+```javascript
+const multiply = (a, b) => a * b
+const curriedMultiply = a => b => a * b
+curriedMultiply(5)(3);
+
+const curriedMultiplyBy5 = curriedMultiply(5);
+curriedMultiplyBy5(3)
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Partial Application
+
+```javascript
+const multiply = (a, b, c) => a * b * c
+const curriedMultiply = a => b => c => a * b * c
+curriedMultiply(5)(4)(10)
+```
+
+```javascript
+const multiply = (a, b, c) => a * b * c
+const partialMultiplyBy5 = multiply.bind(null, 5)
+partialMultiplyBy5(4, 10)
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Compose and Pipe
+
+- [compose](https://ramdajs.com/docs/#compose)
+- [pipe](https://ramdajs.com/docs/#pipe)
+
+```javascript
+// compose(fn1, fn2, fn3)(50)
+// right to lext
+// data -> fn3 -> data -> fn2 -> data -> fn1 -> data
+const compose = (f, g) => a => f(g(a));
+const multiplyBy3 = num => num * 3;
+const Add10 = num => num + 10;
+const multiplyBy3AndAbsolute = compose(multiplyBy3, Add10);
+multiplyBy3AndAbsolute(-50)
+
+// pipe(fn1, fn2, fn3)(50) 
+// left to right
+// data -> fn1 -> data -> fn2 -> data -> fn3 -> data
+const pipe = (f, g) => (a) => g(f(a));
+const multiplyBy3AndAbsolute2 = pipe(multiplyBy3, Add10);
+multiplyBy3AndAbsolute2(-50)
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Arity
+
+Arity of a function (or operation) describes the number of arguments that the function (or operation) takes
+
+- [Function arity](https://medium.com/@igorwojda/function-arity-4be140702f1d)
+- arity: 1 to 2 is preferred
+
+**[⬆ back to top](#table-of-contents)**
+
+### Solution: Amazon
+
+```javascript
+const user = {
+  name: 'Kim',
+  active: true,
+  cart: [],
+  purchases: []
+}
+const history1 = [];
+const compose = (f, g) => (...args) => f(g(...args))
+const pipe = (f, g) => (...args) => g(f(...args))
+const purchaseItem  = (...fns) => fns.reduce(compose);
+const purchaseItem2  = (...fns) => fns.reduce(pipe);
+
+function addItemToCart(user, item) {
+  history1.push(user)
+  const updatedCart = user.cart.concat(item)
+  return Object.assign({}, user, { cart: updatedCart });
+}
+
+function applyTaxToItems(user) {
+  history1.push(user)
+  const { cart } = user;
+  const taxRate = 1.3;
+  const updatedCart = cart.map(item => ({
+    name: item.name,
+    price: item.price * taxRate
+  }))
+  return Object.assign({}, user, { cart: updatedCart });
+}
+
+function buyItem(user) {
+  history1.push(user)
+  const itemsInCart = user.cart;
+  return Object.assign({}, user, { purchases: itemsInCart });
+}
+
+function emptyUserCart(user) {
+  history1.push(user)
+  return Object.assign({}, user, { cart: [] });
+}
+history1
+purchaseItem2(
+  addItemToCart,
+  applyTaxToItems,
+  buyItem,
+  emptyUserCart,
+)(user, { name: 'laptop', price: 60 })
+history1
+
+function refundItem() {
+
+}
+
+function getUserState() {
+
+}
+
+function goBack() {
+
+}
+
+function goForward() {
+
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
