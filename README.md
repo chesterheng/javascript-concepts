@@ -46,6 +46,23 @@
     - [Exercise: Compare Objects](#exercise-compare-objects)
     - [Exercise: Pass By Reference](#exercise-pass-by-reference)
     - [Type Coercion](#type-coercion)
+  - [**Section 5: The 2 Pillars: Closures and Prototypal Inheritance**](#section-5-the-2-pillars-closures-and-prototypal-inheritance)
+    - [Functions are callable Objects](#functions-are-callable-objects)
+    - [First Class Citizens](#first-class-citizens)
+    - [Extra Bits: Functions](#extra-bits-functions)
+    - [Higher Order Functions](#higher-order-functions)
+    - [Closures](#closures)
+    - [Closures and Memory](#closures-and-memory)
+    - [Closures and Encapsulation](#closures-and-encapsulation)
+    - [Closures Exercises and Solutions](#closures-exercises-and-solutions)
+    - [Prototypal Inheritance](#prototypal-inheritance)
+    - [Inherit the properties of parent object](#inherit-the-properties-of-parent-object)
+    - [Check proprties](#check-proprties)
+    - [Create our own prototypes](#create-our-own-prototypes)
+    - [Only functions has prototype property](#only-functions-has-prototype-property)
+    - [Exercise - extend the functionality of a built in object](#exercise---extend-the-functionality-of-a-built-in-object)
+    - [Prototypal Inheritance with this](#prototypal-inheritance-with-this)
+    - [Section Review](#section-review)
 
 ## **Section 2: JavaScript Foundation**
 
@@ -1065,5 +1082,547 @@ if(0) { // false
   console.log(5);
 }
 ```
+
+**[⬆ back to top](#table-of-contents)**
+
+## **Section 5: The 2 Pillars: Closures and Prototypal Inheritance**
+
+### Functions are callable Objects
+
+```javascript
+// Invoke function
+function one() {
+  return 1
+}
+one()
+one.call()
+one.apply()
+
+const obj = {
+  two: function() {
+    return 2;
+  }
+}
+obj.two()
+
+const four = new Function('num', 'return num')
+four(4)
+```
+
+Function
+
+- code ()
+- name (optional)
+- properties: .call(), .apply(), .bind()
+- pass function around like object
+
+```javascript
+function woohooo() {
+  console.log('woohooo')
+}
+
+woohooo.yell = 'ahhhhhhh'
+woohooo.name
+
+// const specialObj = {
+//   yell: 'ahhhhhhh',
+//   name: 'woohooo',
+//   (): console.log('woohooo')
+// }
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### First Class Citizens
+
+Functions are first class citizens in JavaScript
+
+- Function can be assigned to a variable
+- Function can be passed as a paramter to another function
+- Function can be returned as a value from other function
+
+```javascript
+// can be assigned to a variable
+var stuff = function(){}
+
+// pass a function as paramter to another function
+function a(fn) {
+  fn()
+}
+a(function() { console.log('hi there')})
+
+// return function as a value from other function
+function b() {
+  return function c() {  { console.log('bye')} }
+}
+b()()
+var d = b()
+d()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Extra Bits: Functions
+
+- make sure function is initialize one time only
+- use default parameters
+
+```javascript
+for (let i = 0; i < 5; i++){
+  function a() { }  // initialize 5 times
+  a()
+}
+
+function a() { }  // initialize once
+for (let i = 0; i < 5; i++){
+  a()
+}
+```
+
+```javascript
+// default parameters
+function b(param = 6) { 
+  return param
+}
+b()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Higher Order Functions
+
+- [Defining functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions)
+- function() => function(a, b) => HOF
+
+|                    | function()          | function(a, b)      | HOF               |
+| ------------------ | ------------------- | ------------------- | ----------------- |
+| what data to use ? | function definition | during invocation   | during invocation |
+| what to do ?       | function definition | function definition | during invocation |
+
+
+```javascript
+// function()
+function letAdamLogin() {
+  let array = [];
+  for (let i = 0; i < 50000; i++) {
+    array.push(i)
+  }
+  return 'Access Granted to Adam'
+}
+
+function letEvaLogin() {
+  let array = [];
+  for (let i = 0; i < 50000; i++) {
+    array.push(i)
+  }
+  return 'Access Granted to Eva'
+}
+letAdamLogin()
+letEvaLogin()
+
+// function(a, b)
+// function with paramter
+// what data to use when function is called ?
+const giveAccessTo = (name) =>
+  'Access Granted to ' + name;
+function letUserLogin(user) {
+  let array = [];
+  for (let i = 0; i < 50000; i++) {
+    array.push(i)
+  }
+  return giveAccessTo(user)
+}
+function letAdminLogin(admin) {
+  let array = [];
+  for (let i = 0; i < 1000000; i++) {
+    array.push(i)
+  }
+  return giveAccessTo(admin)
+}
+letUserLogin('Adam')
+letUserLogin('Eva')
+
+// HOF: function(a, b, fn)
+// what data to use during invocation ?
+// what to do during invocation ?
+function authenticate(person) {
+  let array = [];
+  console.log(`Level: ${person.level}`)
+  for (let i = 0; i < 50000; i++) {
+    array.push(i)
+  }
+  return giveAccessTo(person.name)
+}
+
+function sing(person) {
+  return `lalalala ${person.name}`
+}
+
+function letPerson(person, fn) { 
+  if (person.level === 'admin') {
+    return fn(person)
+  } else if (person.level === 'user') {
+    return fn(person)
+  }
+}
+
+letPerson({ level: 'user', name: 'Tim' }, authenticate)
+letPerson({ level: 'admin', name: 'Sally' }, sing)
+```
+
+```javascript
+// multiplyBy is HOF
+const multiplyBy = (num1) => {
+  return function (num2) {
+    return num1 * num2;
+  }
+}
+const multiplyByTwo = multiplyBy(2);
+multiplyByTwo(4)
+
+// multiplyBy1 is HOF
+const multiplyBy1 = num1 => num2 => num1 * num2;
+multiplyBy1(2)(4)
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Closures
+
+A closure is a function that has access to its outer scope that it is defined
+- closure = function() + lexical scope (where we write the function)
+
+```javascript
+function a() {
+  let grandpa = 'grandpa'
+  return function b() {
+    let father = 'father'
+    return function c() {
+      let son = 'son'
+      return `${grandpa} > ${father} > ${son}`
+    }
+  }
+}
+
+a()()()
+```
+
+```javascript
+//closures and higher order function
+function boo(string) {
+  return function(name) {
+    return function(name2) {
+      console.log(`${string} ${name} ${name2}`)
+    }
+  }
+}
+
+const boo2 = (string) => (name) => (name2) => console.log(`${string} ${name} ${name2}`)
+
+boo('hi')('john')('tanya');
+boo2('hi')('john')('tanya');
+
+const booString = boo2('sing');
+const booStringName = booString('John');
+const booStringNameName2 = booStringName('tanya')
+```
+
+```javascript
+function callMeMaybe() {
+  setTimeout(function() {
+    console.log(callMe);
+  }, 4000);
+  const callMe = 'Hi!';
+}
+
+callMeMaybe();
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Closures and Memory
+
+```javascript
+// create bigArray everytime heavyDuty is executed
+function heavyDuty(item) {
+  const bigArray = new Array(7000).fill('😄')
+  console.log('created!');
+  return bigArray[item]
+}
+
+heavyDuty(699)
+heavyDuty(699)
+heavyDuty(699)
+```
+
+```javascript
+// Memory efficient
+// create bigArray once with closure
+function heavyDuty2() {
+  const bigArray = new Array(7000).fill('😄')
+  console.log('created Once!')
+  return function(item) {
+    return bigArray[item]
+  }
+}
+const getHeavyDuty = heavyDuty2();
+getHeavyDuty(699)
+getHeavyDuty(699)
+getHeavyDuty(699)
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Closures and Encapsulation
+
+```javascript
+// closure hide passTime and launch functions
+const makeNuclearButton = () => {
+  let timeWithoutDestruction = 0;
+  const passTime = () => timeWithoutDestruction++;
+  const totalPeaceTime = () => timeWithoutDestruction;
+  const launch = () => {
+    timeWithoutDestruction = -1;
+    return '💥';
+  }
+  setInterval(passTime, 1000);
+  return { totalPeaceTime }
+}
+
+const ww3 = makeNuclearButton();
+ww3.totalPeaceTime();
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Closures Exercises and Solutions
+
+```javascript
+// Exercise
+let view;
+function initialize() {
+  view = '🏔';
+  console.log('view has been set!')
+}
+
+initialize();
+initialize();
+initialize();
+view
+```
+
+```javascript
+// Solution
+let view;
+function initialize() {
+  let called = 0;
+  const startOnce = () => {
+    if (called > 0) {
+      return
+    } else {
+      view = '🏔';
+      called++;
+      console.log('view has been set!')
+    }
+  }
+  return { startOnce };
+}
+
+const app = initialize();
+app.startOnce();
+app.startOnce();
+app.startOnce();
+view
+```
+
+```javascript
+// Exercise
+const array = [1,2,3,4];
+for(var i=0; i < array.length; i++) {
+  setTimeout(function() {
+    console.log('I am at index ' + i)
+  }, 3000)
+}
+```
+
+```javascript
+// Solution 1
+const array = [1,2,3,4];
+for(let i=0; i < array.length; i++) {
+  setTimeout(function() {
+    console.log('I am at index ' + i)
+  }, 3000)
+}
+```
+
+```javascript
+// Solution 2
+const array = [1,2,3,4];
+for(var i=0; i < array.length; i++) {
+  (function(index) {
+    setTimeout(function() {
+      console.log('I am at index ' + index)
+    }, 3000)
+  })(i)
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Prototypal Inheritance
+
+```javascript
+const array = []
+array.__proto__ // Array []
+array.__proto__.__proto__ // Object {}
+
+
+function a() {}
+a.__proto__ // Function ()
+a.__proto__.__proto__ // Object {}
+
+const obj1 = {}
+obj1.__proto__  // Object {}
+obj1.__proto__.__proto__  // null
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Inherit the properties of parent object
+
+```javascript
+let dragon = {
+  name: 'Tanya',
+  fire: true,
+  fight() {
+    return 5
+  },
+  sing() {
+    if (this.fire) {
+      return `I am ${this.name}, the breather of fire`
+    }
+  }
+}
+
+let lizard = {
+  name: 'Kiki',
+  fight() {
+    return 1
+  }
+}
+
+// lizard inherit the properties of dragon
+// only need memory for one instance of sing() method
+lizard.__proto__ = dragon;
+lizard.sing()
+lizard.fire
+lizard.fight()
+
+dragon.__proto__
+dragon.isPrototypeOf(lizard);
+
+// list all proprties of lizard
+for(let prop in lizard) {
+  if(lizard.hasOwnProperty(prop)) {
+    console.log(`lizard: ${prop}`) 
+  }
+  else console.log(`dragon: ${prop}`) 
+}
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Check proprties
+
+```javascript
+// __proto__: pointer to parent prototype object
+const obj = { name: 'Sally' }
+obj.hasOwnProperty('name')
+obj.__proto__.hasOwnProperty('hasOwnProperty')
+Object.prototype.hasOwnProperty('hasOwnProperty')
+
+function a() {}
+a.hasOwnProperty('name')
+a.prototype
+a.__proto__.hasOwnProperty('call')
+a.__proto__.hasOwnProperty('apply')
+a.__proto__.hasOwnProperty('bind')
+Function.prototype.hasOwnProperty('call')
+Function.prototype.hasOwnProperty('apply')
+Function.prototype.hasOwnProperty('bind')
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Create our own prototypes
+
+```javascript
+var human = { mortal: true }
+var socrates = Object.create(human);
+socrates.age = 70
+human.isPrototypeOf(socrates);
+socrates.hasOwnProperty('age')
+socrates.__proto__.hasOwnProperty('mortal')
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Only functions has prototype property
+
+```javascript
+function multiply5(num) {
+  return num * 5;
+}
+multiply5.prototype
+multiply5.__proto__  // Function
+Function.prototype  // Function
+multiply5.__proto__.__proto__  // Object
+Object.prototype  // Object
+multiply5.__proto__.__proto__.__proto__  // null
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Exercise - extend the functionality of a built in object
+
+```javascript
+// Date object => to have new method .lastYear() which shows you last year 'YYYY' format.
+Date.prototype.lastYear = function() {
+  return this.getFullYear() - 1;
+}
+new Date('1900-10-10').lastYear() //'1899'
+```
+
+```javascript
+// Mofify .map() to print '🗺' at the end of each item.
+Array.prototype.map = function() {
+  let arr = [];
+  for(let i = 0; i < this.length; i++ ){
+    arr.push(`${this[i]}🗺`)
+  }
+  return arr;
+}
+console.log([1,2,3].map())  //1🗺, 2🗺, 3🗺
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Prototypal Inheritance with this
+
+```javascript
+Function.prototype.bind = function(whoIsCallingMe) {
+  const self = this;
+  return function() {
+    return self.apply(whoIsCallingMe, arguments);
+  };
+}
+```
+**[⬆ back to top](#table-of-contents)**
+
+### Section Review
+
+- [The Scheme Programming Language](https://www.scheme.com/tspl4/)
+- [Java](https://www.java.com/en/)
+- [Brendan Eich on Creating JavaScript in 10 Days, and What He’d Do Differently Today](https://thenewstack.io/brendan-eich-on-creating-javascript-in-10-days-and-what-hed-do-differently-today/)
 
 **[⬆ back to top](#table-of-contents)**
