@@ -63,6 +63,19 @@
     - [Exercise - extend the functionality of a built in object](#exercise---extend-the-functionality-of-a-built-in-object)
     - [Prototypal Inheritance with this](#prototypal-inheritance-with-this)
     - [Section Review](#section-review)
+  - [**Section 6: Object Oriented Programming**](#section-6-object-oriented-programming)
+    - [Section Overview](#section-overview)
+    - [OOP and FP](#oop-and-fp)
+    - [OOP Introduction](#oop-introduction)
+    - [OOP1: Factory Functions](#oop1-factory-functions)
+    - [OOP2: Object.create()](#oop2-objectcreate)
+    - [OOP3: Constructor Functions](#oop3-constructor-functions)
+    - [OOP4: ES6 Classes](#oop4-es6-classes)
+    - [this - 4 Ways](#this---4-ways)
+    - [Inheritance](#inheritance)
+    - [Public vs Private](#public-vs-private)
+    - [4 Pillars of OOP](#4-pillars-of-oop)
+    - [Exercise: OOP and Polymorphism](#exercise-oop-and-polymorphism)
 
 ## **Section 2: JavaScript Foundation**
 
@@ -1624,5 +1637,276 @@ Function.prototype.bind = function(whoIsCallingMe) {
 - [The Scheme Programming Language](https://www.scheme.com/tspl4/)
 - [Java](https://www.java.com/en/)
 - [Brendan Eich on Creating JavaScript in 10 Days, and What He’d Do Differently Today](https://thenewstack.io/brendan-eich-on-creating-javascript-in-10-days-and-what-hed-do-differently-today/)
+
+**[⬆ back to top](#table-of-contents)**
+
+## **Section 6: Object Oriented Programming**
+
+### Section Overview
+
+Programming paradigms
+- Clear + Understandable
+- Easy to Extend
+- Easy to Maintain
+- Memory Efficient
+- DRY
+
+[History of programming languages](https://en.wikipedia.org/wiki/History_of_programming_languages)
+
+- Procedure programming
+- object oriented programming
+- Functional programming
+
+**[⬆ back to top](#table-of-contents)**
+
+### OOP and FP
+
+Data and behavior
+
+| Scheme    | Java    |
+| --------- | ------- |
+| Functions | Objects |
+| FP        | OOP     |
+
+**[⬆ back to top](#table-of-contents)**
+
+### OOP Introduction
+
+Object oriented programming is all about modeling real world objects and relationships.
+
+**[⬆ back to top](#table-of-contents)**
+
+### OOP1: Factory Functions
+
+```javascript
+// each elf object has a copy of attack method
+function createElf(name, weapon) {
+  return {
+    name: name,
+    weapon: weapon,
+    attack() {
+      return `${name} attacks with ${weapon}`
+    }
+  }
+}
+const sam = createElf('Sam', 'stones');
+const peter = createElf('Peter', 'fire');
+
+sam.attack()
+peter.attack()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### OOP2: Object.create()
+
+```javascript
+// all elf object access to shared copy of elfFunctions via __proto__ pointer
+const elfFunctions = {
+  attack: function() {
+    return `${this.name} attacks with ${this.weapon}`
+  }
+}
+function createElf(name, weapon) {
+  const newElf = Object.create(elfFunctions)
+  console.log(newElf.__proto__)
+  newElf.name = name;
+  newElf.weapon = weapon
+  return newElf
+}
+
+const sam = createElf('Sam', 'stones');
+const peter = createElf('Peter', 'fire');
+
+sam.attack()
+peter.attack()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### OOP3: Constructor Functions
+
+```javascript
+function Elf(name, weapon) {
+  this.name = name;
+  this.weapon = weapon;
+}
+
+Elf.prototype.attack = function() { 
+  return `${this.name} attacks with ${this.weapon}`
+}
+
+const sam = new Elf('Sam', 'stones');
+const peter = new Elf('Peter', 'fire');
+
+sam.attack()
+peter.attack()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### OOP4: ES6 Classes
+
+```javascript
+class Elf {
+  // run constructor with new keyword
+  constructor(name, weapon) {
+    this.name = name;
+    this.weapon = weapon;
+  }
+  // shared attack method by all objects
+  attack() {
+    return `${this.name} attacks with ${this.weapon}`
+  }
+}
+
+const sam = new Elf('Sam', 'stones');
+const peter = new Elf('Peter', 'fire');
+
+sam.attack()
+peter.attack()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### this - 4 Ways
+
+```javascript
+// new binding
+function Person(name, age) {
+  this.name = name;
+  this.age =age;
+  console.log(this);
+}
+
+const person1 = new Person('Xavier', 55)
+```
+
+```javascript
+//implicit binding
+const person = {
+  name: 'Karen',
+  age: 40,
+  hi() {
+    console.log('hi' + this.name)
+  }
+}
+
+person.hi()
+```
+
+```javascript
+//explicit binding
+const person3 = {
+  name: 'Karen',
+  age: 40,
+  hi: function() {
+    console.log('hi' + this.setTimeout)
+  }.bind(window)
+}
+
+person3.hi()
+```
+
+```javascript
+// arrow functions
+const person4 = {
+  name: 'Karen',
+  age: 40,
+  hi: function() {
+    var inner = () => {
+      console.log('hi ' + this.name)
+    }
+    return inner()
+  }
+}
+
+person4.hi()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Inheritance
+
+```javascript
+class Character {
+  constructor(name, weapon) {
+    this.name = name;
+    this.weapon = weapon;
+  }
+  attack() {
+    return `${this.name} attacks with ${this.weapon}`
+  }
+}
+
+class Elf extends Character { 
+  constructor(name, weapon, type) {
+    // console.log('what am i?', this); this gives an error
+    super(name, weapon) 
+    console.log('what am i?', this);
+    this.type = type;
+  }
+}
+
+class Ogre extends Character {
+  constructor(name, weapon, color) {
+    super(name, weapon);
+    this.color = color;
+  }
+  makeFort() { // this is like extending our prototype.
+    return 'strongest fort in the world made'
+  }
+}
+
+const houseElf = new Elf('Dolby', 'cloth', 'house')
+houseElf.makeFort() // error
+const shrek = new Ogre('Shrek', 'club', 'green')
+shrek.makeFort()
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Public vs Private
+
+[JavaScript’s New Private Class Fields, and How to Use Them](https://www.sitepoint.com/javascript-private-class-fields/)
+
+**[⬆ back to top](#table-of-contents)**
+
+### 4 Pillars of OOP
+
+- Encapsulation: wrap data and code into objects
+- Abstraction: hide the complexity in classes
+- Inheritance
+- Polymorphism: call the same methods on different objects with different responses
+
+**[⬆ back to top](#table-of-contents)**
+
+### Exercise: OOP and Polymorphism
+
+```javascript
+class Character {
+  constructor(name, weapon) {
+    this.name = name;
+    this.weapon = weapon;
+  }
+  attack() {
+    return 'atack with ' + this.weapon
+  }
+}
+
+class Queen extends Character { 
+  constructor(name, weapon, kind) {
+    super(name, weapon) 
+    this.kind = kind;
+  }
+  attack() {
+    console.log(super.attack());
+    return `I am the ${this.name} of ${this.kind}, now bow down to me! `
+  }
+}
+
+const victoria = new Queen('Victoria', 'army', 'hearts');
+victoria.attack()
+```
 
 **[⬆ back to top](#table-of-contents)**
