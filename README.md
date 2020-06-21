@@ -93,6 +93,10 @@
   - [**Section 8: OOP vs FP**](#section-8-oop-vs-fp)
     - [Composition vs Inheritance](#composition-vs-inheritance)
     - [OOP vs FP](#oop-vs-fp)
+  - [**Section 9: Asynchronous JavaScript**](#section-9-asynchronous-javascript)
+    - [Job Queue](#job-queue)
+    - [Parallel, Sequence and Race](#parallel-sequence-and-race)
+    - [Threads, Concurrency and Parallelism](#threads-concurrency-and-parallelism)
 
 ## **Section 2: JavaScript Foundation**
 
@@ -2266,5 +2270,72 @@ function goForward() {
 | stateless                     | stateful                      |
 | pure                          | side effect                   |
 | declarative                   | imperative                    |
+
+**[⬆ back to top](#table-of-contents)**
+
+## **Section 9: Asynchronous JavaScript**
+
+### Job Queue
+
+- Job Queue has high priority than Callback Queue
+- [Understanding Event Loop, Call Stack, Event & Job Queue in Javascript](https://medium.com/@Rahulx1/understanding-event-loop-call-stack-event-job-queue-in-javascript-63dcd2c71ecd)
+
+```javascript
+// Callback Queue - Task Queue
+setTimeout(() => { console.log('1', 'is the loneliest number') }, 0)
+setTimeout(() => { console.log('2', 'can be as bad as one') }, 10)
+
+// Job Queue - Microtask Queue
+Promise.resolve('hi').then( data => console.log('2', data))
+
+console.log('3','is a crowd')
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Parallel, Sequence and Race
+
+```javascript
+const promisify = (item, delay) =>
+  new Promise((resolve) =>
+    setTimeout(() =>
+      resolve(item), delay));
+
+const a = () => promisify('a', 100);
+const b = () => promisify('b', 5000);
+const c = () => promisify('c', 3000);
+
+async function parallel() {
+  const promises = [a(), b(), c()];
+  const [output1, output2, output3] = await Promise.all(promises);
+  return `prallel is done: ${output1} ${output2} ${output3}`
+}
+
+async function race() {
+  const promises = [a(), b(), c()];
+  const output1 = await Promise.race(promises);
+  return `race is done: ${output1}`;
+}
+
+async function sequence() {
+  const output1 = await a();
+  const output2 = await b();
+  const output3 = await c();
+  return `sequence is done ${output1} ${output2} ${output3}`
+}
+
+sequence().then(console.log)
+parallel().then(console.log)
+race().then(console.log)
+```
+
+**[⬆ back to top](#table-of-contents)**
+
+### Threads, Concurrency and Parallelism
+
+- [Concurrency vs Parallelism](https://www.codeproject.com/Articles/1267757/Concurrency-vs-Parallelism)
+- [A gentle introduction to multithreading](https://www.internalpointers.com/post/gentle-introduction-multithreading)
+- [Using Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers)
+- [Scaling Node.js Applications](https://www.freecodecamp.org/news/scaling-node-js-applications-8492bd8afadc/)
 
 **[⬆ back to top](#table-of-contents)**
