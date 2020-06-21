@@ -90,6 +90,9 @@
     - [Compose and Pipe](#compose-and-pipe)
     - [Arity](#arity)
     - [Solution: Amazon](#solution-amazon)
+  - [**Section 8: OOP vs FP**](#section-8-oop-vs-fp)
+    - [Composition vs Inheritance](#composition-vs-inheritance)
+    - [OOP vs FP](#oop-vs-fp)
 
 ## **Section 2: JavaScript Foundation**
 
@@ -2246,3 +2249,22 @@ function goForward() {
 
 **[⬆ back to top](#table-of-contents)**
 
+## **Section 8: OOP vs FP**
+
+### Composition vs Inheritance
+
+- Inheritance: a superclass that is extended to smaller pieces that add or overwrite things
+- Composition: smaller pieces that are combined to create something bigger
+
+**[⬆ back to top](#table-of-contents)**
+
+### OOP vs FP
+
+| FP                            | OOP                           |
+| ----------------------------- | ----------------------------- |
+| many operations on fixed data | few operations on common data |
+| stateless                     | stateful                      |
+| pure                          | side effect                   |
+| declarative                   | imperative                    |
+
+**[⬆ back to top](#table-of-contents)**
