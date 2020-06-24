@@ -2307,6 +2307,8 @@ console.log('3','is a crowd')
 
 ### Parallel, Sequence and Race
 
+[Promises for asynchronous programming](https://exploringjs.com/impatient-js/ch_promises.html#promise.allsettled-es2020-1)
+
 ```javascript
 const promisify = (item, delay) =>
   new Promise((resolve) =>
